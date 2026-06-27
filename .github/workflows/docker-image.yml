@@ -45,6 +45,6 @@ jobs:
         script: |
           docker stop demo1 || true
           docker rm spring-demo1 || true
-          docker pull ${{ secrets.DOCKER_USERNAME }}/demo1:latest
-          docker run -d --name spring-demo1 -p 8082:8082 ${{ secrets.Docker_USERNAME }}/demo1:latest
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/demo1:latest
+          docker run -d --name spring-demo1 -p 8082:8082 ${{ secrets.DOCKERHUB_USERNAME }}/demo1:latest
           ls -al
