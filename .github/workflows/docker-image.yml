@@ -1,0 +1,45 @@
+name: Docker Build -> push -> Deploy
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: checkout code
+      uses: actions/checout@v4
+      
+    - name: setup Java
+      uses: actions/setup-java@v5
+      with:
+          distribution: 'temurin' # See 'Supported distributions' for available options
+          java-version: '17'
+
+    - name: Build Jar
+      run: ./mvnw clean package -DskipTests
+
+    - name: Login Docker Hub
+      run: docker login -u "${{ secrets.DOCKER_USERNAME}}" --password-stdin
+      
+    - name: Build Docker Image
+      run: docker build -t ${{ secrets.DOCKER_USERNAME}}/demo1:latest
+
+    - name: push Image to Docker Hub
+      run: docker push ${{ secrets.DOCKER_USERNAME}}/demo1:latest
+
+    - name: SSH and Deploy to ec2
+      uses: appleboy/ssh-action@v1
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          docker stop demo1 || true
+          docker rm spring-demo1 || true
+          docker pull ${{ secrets.DOCKER_USERNAME }}/demo1:latest
+          docker run -d --name spring-demo1 -p 8082:8082 ${{ secrets.Docker_USERNAME }}/demo1:latest
+          ls -al
