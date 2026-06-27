@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class DemoController {
 	@GetMapping("/")
 	public String hello() {
-		return "Hello Word from CI/CD pipeline .....";
+		return "Hello Word from CI/CD pipeline .....!!!";
 	}
 }
